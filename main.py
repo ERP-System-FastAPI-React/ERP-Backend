@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+
+from database import engine
 
 app = FastAPI(
     title="ERP System",
@@ -21,6 +24,13 @@ app.add_middleware(
 def read_root():
     return {
     }
+
+
+@app.get("/health/database")
+def check_database():
+    with engine.connect() as connection:
+        database_name = connection.scalar(text("SELECT DATABASE()"))
+    return {"status": "connected", "database": database_name}
 
 
 @app.get("/items/{item_id}")
